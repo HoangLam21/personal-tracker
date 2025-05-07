@@ -1,60 +1,44 @@
+// app/signup/page.tsx
 'use client';
 
-import Link from 'next/link';
-import { useState } from 'react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input/Input";
+import { Button } from "@/components/ui/button/Button";
 
-export default function RegisterPage() {
-  const [loading, setLoading] = useState(false);
+export default function SignupPage() {
+  const [error, setError] = useState("");
+  const router = useRouter();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    // TODO: Xử lý đăng ký ở đây
+    const form = new FormData(e.currentTarget);
+    const res = await fetch("/api/register", {
+      method: "POST",
+      body: JSON.stringify({
+        name: form.get("name"),
+        email: form.get("email"),
+        phoneNumber: form.get("phoneNumber"),
+        password: form.get("password"),
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (res.ok) router.push("/login");
+    else {
+      const result = await res.json();
+      setError(result.error || "Đăng ký thất bại");
+    }
   };
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-indigo-50">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-        <h1 className="text-2xl font-bold text-indigo-600 mb-6 text-center">Đăng ký</h1>
-        <form onSubmit={handleRegister} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Họ tên</label>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              required
-              className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
-            <input
-              type="password"
-              required
-              className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition"
-          >
-            {loading ? 'Đang đăng ký...' : 'Đăng ký'}
-          </button>
-        </form>
-        <p className="text-sm text-center text-gray-600 mt-6">
-          Đã có tài khoản?{' '}
-          <Link href="/login" className="text-indigo-600 hover:underline">
-            Đăng nhập
-          </Link>
-        </p>
-      </div>
-    </main>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-[400px]">
+      <Input name="name" required placeholder="Fullname"/>
+      <Input name="email" required placeholder="Email"/>
+      <Input name="phoneNumber" required placeholder="phoneNumber"/>
+      <Input name="password" required placeholder="Password"/>
+      <Button type="submit">Đăng ký</Button>
+      {error && <p>{error}</p>}
+    </form>
   );
 }

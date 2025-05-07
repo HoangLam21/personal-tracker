@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input/Input";
 import { InfoPanel } from "@/components/ui/panel/InfoPanel";
 import { Selection } from "@/components/ui/selection/Selection";
 import { Table } from "@/components/ui/table/Table";
+// import { redirect } from "next/navigation";
 import { useState } from "react";
 
 const options = [
@@ -23,6 +24,7 @@ const rows = Array.from({ length: 30 }, (_, i) => [
 
 export default function Home() {
   const [value, setValue] = useState("");
+  // redirect("/dashboard");
   return (
    <div className="bg-white w-screen h-screen">
     <Button variant="default">Haha</Button>
