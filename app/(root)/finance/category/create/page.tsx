@@ -12,8 +12,7 @@ export default async function CreateCategoryPage() {
   }
 
   return (
-    <main className="max-w-xl mx-auto">
-      <h1 className="text-xl font-semibold mb-4">Tạo danh mục mới</h1>
+    <main className="flex-1 w-full h-full flex items-center justify-center">
       <CreateCategoryForm userId={userId} />
     </main>
   );
