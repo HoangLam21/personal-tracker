@@ -80,7 +80,7 @@ export async function createCategory(_prevState: any, formData: FormData) {
       createdAt: new Date(),
     });
 
-    return { success: true, redirectTo: "/finance/category" };
+    return { success: true, redirect: "/finance/category" };
   } catch (error) {
     console.error("Create Category Error:", error);
     return { success: false, message: "Lỗi máy chủ khi tạo danh mục." };
@@ -111,7 +111,7 @@ export async function updateCategory(_prevState: any, formData: FormData) {
       { new: true }
     );
 
-    return { success: true, data: updated };
+    return { success: true, redirect:"/finance/category" };
   } catch (error) {
     console.error("Update Category Error:", error);
     return { success: false, message: "Lỗi cập nhật danh mục." };

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button/Button";
 import { Selection } from "@/components/ui/selection/Selection";
 import { ImageInput } from "@/components/ui/input/ImageInput";
 import { getCategoryById, updateCategory } from "@/lib/actions/category.action";
+import { useRouter } from "next/navigation";
 
 const typeOptions = [
   { label: "Thu nhập", value: "income" },
@@ -25,6 +26,7 @@ export default function EditCategoryForm({
   const [category, setCategory] = useState(null);
   const [type, setType] = useState("income");
   const [formState, formAction] = useActionState(updateCategory, initialState);
+  const router = useRouter();
 
   useEffect(() => {
     const fetch = async () => {
@@ -38,6 +40,12 @@ export default function EditCategoryForm({
     };
     fetch();
   }, [id, userId]);
+
+  useEffect(() => {
+    if (formState.success) {
+      router.push(formState.redirect);
+    }
+  }, [formState]);
 
   if (!category) {
     return <p className="text-gray-500 text-sm">Đang tải dữ liệu...</p>;

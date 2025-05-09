@@ -8,28 +8,49 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Pencil,
-  Trash
+  Trash,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import LoadingSpinner from "../loading-spinner/LoadingSpinner";
 
 export type TableRow = {
   id: string;
+  rowType?: "income" | "expense";
   cells: Array<string | JSX.Element>;
 };
 
 export type TableProps = {
   headers: string[];
   fetchData: (page: number, rowsPerPage: number) => Promise<TableRow[]>;
-  rowsPerPage?: number;
   onEdit?: (rowId: string) => void;
   onDelete?: (rowId: string) => void;
 };
 
-export const Table: React.FC<TableProps> = ({ headers, fetchData, rowsPerPage = 5, onEdit, onDelete }) => {
+export const Table: React.FC<TableProps> = ({
+  headers,
+  fetchData,
+  onEdit,
+  onDelete,
+}) => {
   const [page, setPage] = React.useState<number>(1);
   const [rows, setRows] = React.useState<TableRow[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [hasMore, setHasMore] = React.useState<boolean>(true);
+  const [rowsPerPage, setRowsPerPage] = React.useState<number>(5);
+
+  // Tính số hàng phù hợp với chiều cao màn hình
+  React.useEffect(() => {
+    const calculateRows = () => {
+      const usableHeight = window.innerHeight - 320; // trừ header/footer/khoảng cách
+      const rowHeight = 70; // chiều cao ước tính của mỗi dòng
+      const rows = Math.floor(usableHeight / rowHeight);
+      setRowsPerPage(rows > 3 ? rows : 3); // tối thiểu 3 hàng
+    };
+
+    calculateRows();
+    window.addEventListener("resize", calculateRows);
+    return () => window.removeEventListener("resize", calculateRows);
+  }, []);
 
   React.useEffect(() => {
     const load = async () => {
@@ -58,11 +79,14 @@ export const Table: React.FC<TableProps> = ({ headers, fetchData, rowsPerPage = 
               <th className="px-6 py-3 whitespace-nowrap text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="text-gray-700 text-sm" style={{ height: `${rowsPerPage * 70}px` }}>
+          <tbody
+            className="text-gray-700 text-sm"
+            style={{ height: `${rowsPerPage * 70}px` }}
+          >
             {loading ? (
               <tr>
                 <td colSpan={headers.length + 1} className="text-center py-4">
-                  Đang tải dữ liệu...
+                  <LoadingSpinner />
                 </td>
               </tr>
             ) : (
@@ -73,10 +97,11 @@ export const Table: React.FC<TableProps> = ({ headers, fetchData, rowsPerPage = 
                     className="border-t border-gray-100 hover:bg-gray-50 transition"
                   >
                     {row.cells.map((cell, ci) => {
-                      const isStatus = headers[ci] === "Status";
-                      const isAmount = headers[ci] === "Amount";
+                      const header = headers[ci];
+                      const isStatus = header === "Status";
+                      const isAmount = header === "Amount";
                       const isColor =
-                        headers[ci].toLowerCase() === "color" &&
+                        header.toLowerCase() === "color" &&
                         typeof cell === "string" &&
                         /^#([0-9A-Fa-f]{3}){1,2}$/.test(cell);
 
@@ -103,12 +128,16 @@ export const Table: React.FC<TableProps> = ({ headers, fetchData, rowsPerPage = 
                               <span
                                 className={cn(
                                   "font-semibold",
-                                  cell.includes("-")
-                                    ? "text-red-500"
-                                    : "text-green-600"
+                                  row.rowType === "income"
+                                    ? "text-green-600"
+                                    : "text-red-500"
                                 )}
                               >
-                                {cell}
+                                {row.rowType === "income"
+                                  ? `+${cell}`
+                                  : row.rowType === "expense"
+                                  ? `-${cell}`
+                                  : cell}
                               </span>
                             ) : (
                               cell
@@ -135,11 +164,12 @@ export const Table: React.FC<TableProps> = ({ headers, fetchData, rowsPerPage = 
                     </td>
                   </tr>
                 ))}
-
                 {Array.from({ length: emptyRows }).map((_, i) => (
                   <tr key={`empty-${i}`} className="border-t border-gray-100">
                     {headers.map((_, ci) => (
-                      <td key={ci} className="px-6 py-4 whitespace-nowrap">&nbsp;</td>
+                      <td key={ci} className="px-6 py-4 whitespace-nowrap">
+                        &nbsp;
+                      </td>
                     ))}
                     <td className="px-6 py-4 whitespace-nowrap">&nbsp;</td>
                   </tr>
@@ -192,7 +222,10 @@ export const Table: React.FC<TableProps> = ({ headers, fetchData, rowsPerPage = 
   );
 };
 
-export const AvatarCell: React.FC<{ src: string; alt?: string }> = ({ src, alt }) => (
+export const AvatarCell: React.FC<{ src: string; alt?: string }> = ({
+  src,
+  alt,
+}) => (
   <img
     src={src}
     alt={alt || "avatar"}

@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input/Input";
 import { Button } from "@/components/ui/button/Button";
 import { Selection } from "@/components/ui/selection/Selection";
 import { createCategory } from "@/lib/actions/category.action";
 import { ImageInput } from "../ui/input/ImageInput";
+import { useRouter } from "next/navigation";
 
 const initialState = { success: false, message: "" };
 
@@ -18,7 +19,12 @@ const typeOptions = [
 export default function CreateCategoryForm({ userId }: { userId: string }) {
   const [type, setType] = useState("income");
   const [formState, formAction] = useActionState(createCategory, initialState);
-
+  const router = useRouter();
+  useEffect(() => {
+    if (formState.success) {
+      router.push(formState.redirect);
+    }
+  }, [formState]);
   return (
     <form
       action={formAction}
