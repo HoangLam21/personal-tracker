@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button/Button";
 import { Input } from "@/components/ui/input/Input";
 import { InfoPanel } from "@/components/ui/panel/InfoPanel";
 import { Selection } from "@/components/ui/selection/Selection";
-import { Table } from "@/components/ui/table/Table";
 // import { redirect } from "next/navigation";
 import { useState } from "react";
 
@@ -14,12 +13,6 @@ const options = [
 ];
 
 
-const headers = ["Name", "Email", "Role"];
-const rows = Array.from({ length: 30 }, (_, i) => [
-  `User ${i + 1}`,
-  `user${i + 1}@example.com`,
-  "Member",
-]);
 
 
 export default function Home() {
@@ -46,7 +39,6 @@ export default function Home() {
       <p className="text-indigo-500">{"Value: " + value}</p>
       <InfoPanel message="This is a message"/>
     </div>
-    <Table headers={headers} rows={rows} />
 
    </div>
   );
