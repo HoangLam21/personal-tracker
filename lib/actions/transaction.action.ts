@@ -2,8 +2,10 @@
 
 import { connectToDatabase } from "@/lib/mongodb";
 import Transaction from "@/database/transaction.model";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { redirect } from "next/navigation";
+import { ChartDataItem, TransactionSummary } from "@/constant";
+import { ChartType, TimeRange } from "@/components/shared/StatisticHeader";
 
 // Lấy giao dịch theo ID
 export async function getTransactionById(id: string, userId: string) {
@@ -26,19 +28,18 @@ export async function getTransactionById(id: string, userId: string) {
       _id: category?._id?.toString() || "",
       name: category?.name || "",
       color: category?.color || "",
-      icon: category?.icon || "",
+      icon: category?.icon || ""
     },
     amount: transaction.amount,
     note: transaction.note,
     date: transaction.date,
     type: transaction.type,
     createdAt: transaction.createdAt,
-    updatedAt: transaction.updatedAt,
+    updatedAt: transaction.updatedAt
   };
 }
 
 // Lấy tất cả giao dịch
-
 export async function getAllTransactions(skip = 0, limit = 10, userId: string) {
   await connectToDatabase();
 
@@ -64,8 +65,8 @@ export async function getAllTransactions(skip = 0, limit = 10, userId: string) {
         _id: category?._id?.toString() || "",
         name: category?.name || "",
         icon: category?.icon || "",
-        color: category?.color || "",
-      },
+        color: category?.color || ""
+      }
     };
   });
 }
@@ -93,7 +94,7 @@ export async function createTransaction(_prevState: any, formData: FormData) {
       note,
       date,
       type,
-      createdAt: new Date(),
+      createdAt: new Date()
     });
 
     return { success: true, redirect: "/finance" };
@@ -126,12 +127,12 @@ export async function updateTransaction(_prevState: any, formData: FormData) {
         ...(type && { type }),
         amount,
         date,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       },
       { new: true }
     );
 
-    return { success: true, redirect:"/finance" };
+    return { success: true, redirect: "/finance" };
   } catch (error) {
     console.error("Update Transaction Error:", error);
     return { success: false, message: "Lỗi cập nhật giao dịch." };
@@ -178,8 +179,148 @@ export async function searchTransactionByNote(q: string, userId: string) {
         _id: category?._id?.toString() || "",
         name: category?.name || "",
         color: category?.color || "",
-        icon: category?.icon || "",
-      },
+        icon: category?.icon || ""
+      }
     };
   });
+}
+
+// Lấy dữ liệu cho chart
+export async function getTransactionSummary(
+  userId: string
+): Promise<TransactionSummary> {
+  await connectToDatabase();
+
+  const result = await Transaction.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId)
+      }
+    },
+    {
+      $group: {
+        _id: "$type",
+        totalAmount: { $sum: "$amount" }
+      }
+    }
+  ]);
+
+  let income = 0;
+  let expense = 0;
+
+  result.forEach((item) => {
+    if (item._id === "income") {
+      income = item.totalAmount;
+    } else if (item._id === "expense") {
+      expense = item.totalAmount;
+    }
+  });
+
+  const profit = income - expense;
+
+  return {
+    income,
+    expense,
+    profit
+  };
+}
+
+export async function getChartData(
+  userId: string,
+  range: TimeRange,
+  chartType: ChartType = "general"
+): Promise<ChartDataItem[]> {
+  await connectToDatabase();
+
+  const now = new Date();
+  let startDate: Date;
+
+  switch (range) {
+    case "year":
+      startDate = new Date(now.getFullYear(), 0, 1);
+      break;
+    case "month":
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    case "last7days":
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 7);
+      break;
+    default:
+      startDate = new Date(now.getFullYear(), 0, 1);
+  }
+
+  const matchCondition: any = {
+    userId: new mongoose.Types.ObjectId(userId),
+    date: { $gte: startDate, $lte: now }
+  };
+
+  // Nếu không phải general, filter theo type luôn
+  if (chartType !== "general") {
+    matchCondition.type = chartType === "income" ? "income" : "expense";
+  }
+
+  const transactions = await Transaction.aggregate([
+    {
+      $match: matchCondition
+    },
+    {
+      $project: {
+        amount: 1,
+        type: 1,
+        date: 1,
+        label: range === "year" ? { $month: "$date" } : { $dayOfMonth: "$date" }
+      }
+    },
+    {
+      $group: {
+        _id: { label: "$label", type: "$type" },
+        total: { $sum: "$amount" }
+      }
+    }
+  ]);
+
+  const chartMap: Record<string, ChartDataItem> = {};
+
+  if (range === "year") {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+    months.forEach((month, i) => {
+      chartMap[(i + 1).toString()] = { month, income: 0, outcome: 0 };
+    });
+  } else {
+    for (let d = 1; d <= 31; d++) {
+      const label = d.toString();
+      chartMap[label] = {
+        month: label.padStart(2, "0"),
+        income: 0,
+        outcome: 0
+      };
+    }
+  }
+
+  transactions.forEach((item) => {
+    const label = item._id.label.toString();
+    const type = item._id.type;
+    const total = item.total;
+
+    if (chartMap[label]) {
+      if (type === "income") chartMap[label].income = total;
+      else chartMap[label].outcome = total;
+    }
+  });
+
+  return Object.values(chartMap).filter((d) => d.income > 0 || d.outcome > 0);
 }

@@ -3,13 +3,14 @@ module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
     extend: {
       colors: {
         white: "#FFFFFF",
         black: "#080325",
+        primary: { 500: "#4F46E5", 100: "#F7F8FD" },
         custom: {
           10: "#FFFFFF",
           20: "#F8FAFC",
@@ -21,21 +22,21 @@ module.exports = {
           80: "#5B6776",
           90: "#344055",
           100: "#121212",
-          200: "#F8FAFC",
+          200: "#F93939",
           300: "#E9EDF2",
-          400: "#E2E8F0",
+          400: "#EFB2B2",
           500: "#CBCFD5",
           600: "#A4A9B0",
           700: "#79808A",
           800: "#5B6776",
           900: "#344055",
-          "default": "#64748B",
+          default: "#64748B",
           disable: "#94A3B8",
           success: "#E9EDF2",
           error: "#CBCFD5"
         }
       }
-    },
+    }
   },
-  plugins: [],
-}
+  plugins: []
+};
