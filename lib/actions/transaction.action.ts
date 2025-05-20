@@ -2,7 +2,7 @@
 
 import { connectToDatabase } from "@/lib/mongodb";
 import Transaction from "@/database/transaction.model";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { redirect } from "next/navigation";
 
 // Lấy giao dịch theo ID
@@ -26,19 +26,18 @@ export async function getTransactionById(id: string, userId: string) {
       _id: category?._id?.toString() || "",
       name: category?.name || "",
       color: category?.color || "",
-      icon: category?.icon || "",
+      icon: category?.icon || ""
     },
     amount: transaction.amount,
     note: transaction.note,
     date: transaction.date,
     type: transaction.type,
     createdAt: transaction.createdAt,
-    updatedAt: transaction.updatedAt,
+    updatedAt: transaction.updatedAt
   };
 }
 
 // Lấy tất cả giao dịch
-
 export async function getAllTransactions(skip = 0, limit = 10, userId: string) {
   await connectToDatabase();
 
@@ -64,8 +63,8 @@ export async function getAllTransactions(skip = 0, limit = 10, userId: string) {
         _id: category?._id?.toString() || "",
         name: category?.name || "",
         icon: category?.icon || "",
-        color: category?.color || "",
-      },
+        color: category?.color || ""
+      }
     };
   });
 }
@@ -93,7 +92,7 @@ export async function createTransaction(_prevState: any, formData: FormData) {
       note,
       date,
       type,
-      createdAt: new Date(),
+      createdAt: new Date()
     });
 
     return { success: true, redirect: "/finance" };
@@ -126,12 +125,12 @@ export async function updateTransaction(_prevState: any, formData: FormData) {
         ...(type && { type }),
         amount,
         date,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       },
       { new: true }
     );
 
-    return { success: true, redirect:"/finance" };
+    return { success: true, redirect: "/finance" };
   } catch (error) {
     console.error("Update Transaction Error:", error);
     return { success: false, message: "Lỗi cập nhật giao dịch." };
@@ -178,8 +177,54 @@ export async function searchTransactionByNote(q: string, userId: string) {
         _id: category?._id?.toString() || "",
         name: category?.name || "",
         color: category?.color || "",
-        icon: category?.icon || "",
-      },
+        icon: category?.icon || ""
+      }
     };
   });
+}
+
+//
+export interface TransactionSummary {
+  income: number;
+  expense: number;
+  profit: number;
+}
+
+export async function getTransactionSummary(
+  userId: string
+): Promise<TransactionSummary> {
+  await connectToDatabase();
+
+  const result = await Transaction.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId)
+      }
+    },
+    {
+      $group: {
+        _id: "$type",
+        totalAmount: { $sum: "$amount" }
+      }
+    }
+  ]);
+
+  let income = 0;
+  let expense = 0;
+
+  result.forEach((item) => {
+    if (item._id === "income") {
+      income = item.totalAmount;
+    } else if (item._id === "expense") {
+      expense = item.totalAmount;
+    }
+  });
+
+  const profit = income - expense;
+
+  return {
+    income,
+    expense,
+    profit
+  };
 }
