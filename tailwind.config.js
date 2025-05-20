@@ -10,6 +10,7 @@ module.exports = {
       colors: {
         white: "#FFFFFF",
         black: "#080325",
+        primary: { 500: "#4F46E5", 100: "#F7F8FD" },
         custom: {
           10: "#FFFFFF",
           20: "#F8FAFC",
@@ -21,7 +22,7 @@ module.exports = {
           80: "#5B6776",
           90: "#344055",
           100: "#121212",
-          200: "#F8FAFC",
+          200: "#F93939",
           300: "#E9EDF2",
           400: "#EFB2B2",
           500: "#CBCFD5",
