@@ -4,13 +4,19 @@ import StatCard, { StatCardProps } from "../card/StatCard";
 import { ArrowDownCircle, ArrowUpCircle, DollarSign } from "lucide-react";
 import {
   getChartData,
+  getIncomeExpenseComparison,
+  getTopExpenseCategoriesForPieChart,
+  getTopIncomeCategoriesForBarChart,
   getTransactionSummary
 } from "@/lib/actions/transaction.action";
 import StatisticHeader from "../shared/StatisticHeader";
 import { TransactionChart } from "../chart/TransactionChart";
+import { ExpensePieChart } from "../chart/ExpensePieChart";
+import { IncomeBarChart } from "../chart/IncomeBarChart";
+import { ChartDataItem, CategoryChartData, TrendResult } from "@/constant";
 
 export default function TransactionChartForm({ userId }: { userId: string }) {
-  const [chartType, setChartType] = useState<"general" | "income" | "outcome">(
+  const [chartType, setChartType] = useState<"general" | "income" | "expense">(
     "general"
   );
   const [timeRange, setTimeRange] = useState<"year" | "month" | "last7days">(
@@ -21,9 +27,15 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
     expense: 0,
     profit: 0
   });
-  const [chartData, setChartData] = useState<
-    { month: string; income: number; outcome: number }[]
-  >([]);
+  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+  const [expenseChartData, setexpenseChartData] = useState<CategoryChartData[]>(
+    []
+  );
+  const [incomeChartData, setIncomeChartData] = useState<CategoryChartData[]>(
+    []
+  );
+  const [outcomComparison, setexpenseComparison] = useState<TrendResult>();
+  const [incomComparison, setIncomeComparison] = useState<TrendResult>();
   const statData: StatCardProps[] = [
     {
       icon: <ArrowDownCircle className="w-full h-full" />,
@@ -34,7 +46,7 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
     },
     {
       icon: <ArrowUpCircle className="w-full h-full" />,
-      label: "Lifetime Outcome",
+      label: "Lifetime Expense",
       value: `${summary.expense.toLocaleString()} VND `,
       bgColor: "bg-red-100",
       iconColor: "text-red-500"
@@ -59,8 +71,26 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
       setChartData(data);
     }
 
+    async function fetchexpensePieChartData() {
+      const data = await getTopExpenseCategoriesForPieChart(userId);
+      setexpenseChartData(data);
+    }
+
+    async function fetchIncomeBarChartData() {
+      const data = await getTopIncomeCategoriesForBarChart(userId);
+      setIncomeChartData(data);
+    }
+    async function fetchIncomeExpenseComparison() {
+      const { income, expense } = await getIncomeExpenseComparison(userId);
+      setIncomeComparison(income);
+      setexpenseComparison(expense);
+    }
+
     fetchSummary();
     fetchChartData();
+    fetchexpensePieChartData();
+    fetchIncomeBarChartData();
+    fetchIncomeExpenseComparison();
   }, [userId, timeRange, chartType]);
 
   return (
@@ -77,8 +107,23 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
           timeRange={timeRange}
           setTimeRange={setTimeRange}
         />
-        <div className="w-full h-full">
+        <div className="w-full flex-1">
           <TransactionChart chartData={chartData} timeRange={timeRange} />
+        </div>
+
+        <div className="w-full flex flex-1 items-start justify-between gap-6 ">
+          <div className="w-1/2 h-auto">
+            <ExpensePieChart
+              chartData={expenseChartData}
+              trend={outcomComparison}
+            />
+          </div>
+          <div className="flex-1 w-1/2 h-full">
+            <IncomeBarChart
+              chartData={incomeChartData}
+              trend={incomComparison}
+            />
+          </div>
         </div>
       </div>
     </div>
