@@ -9,3 +9,9 @@ export interface ChartDataItem {
   income: number;
   outcome: number;
 }
+
+export interface PieChartData {
+  category: string;
+  value: number;
+  fill: string;
+}

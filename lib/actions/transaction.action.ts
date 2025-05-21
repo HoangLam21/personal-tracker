@@ -4,7 +4,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Transaction from "@/database/transaction.model";
 import mongoose, { Types } from "mongoose";
 import { redirect } from "next/navigation";
-import { ChartDataItem, TransactionSummary } from "@/constant";
+import { ChartDataItem, PieChartData, TransactionSummary } from "@/constant";
 import { ChartType, TimeRange } from "@/components/shared/StatisticHeader";
 
 // Lấy giao dịch theo ID
@@ -323,4 +323,64 @@ export async function getChartData(
   });
 
   return Object.values(chartMap).filter((d) => d.income > 0 || d.outcome > 0);
+}
+const top3Colors = ["#061246", "#2E4CE8", "#BAC3F8"];
+export async function getTopExpenseCategoriesForPieChart(
+  userId: string
+): Promise<PieChartData[]> {
+  await connectToDatabase();
+
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  const result = await Transaction.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId),
+        type: "expense",
+        date: { $gte: sixMonthsAgo }
+      }
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "categoryId",
+        foreignField: "_id",
+        as: "category"
+      }
+    },
+    { $unwind: "$category" },
+    {
+      $group: {
+        _id: "$category._id",
+        name: { $first: "$category.name" },
+        color: { $first: "$category.color" },
+        total: { $sum: "$amount" }
+      }
+    },
+    {
+      $sort: { total: -1 }
+    }
+  ]);
+
+  const top3 = result.slice(0, 3);
+  const others = result.slice(3);
+
+  const top3Data: PieChartData[] = top3.map((item, index) => ({
+    category: item.name || "Unknown",
+    value: item.total,
+    fill: top3Colors[index] || "#6B7280" // fallback nếu thiếu màu
+  }));
+
+  const othersTotal = others.reduce((sum, item) => sum + item.total, 0);
+
+  if (othersTotal > 0) {
+    top3Data.push({
+      category: "Others",
+      value: othersTotal,
+      fill: "#6B7280" // hoặc #4B5563
+    });
+  }
+
+  return top3Data;
 }

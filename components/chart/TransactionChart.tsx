@@ -75,9 +75,9 @@ export function TransactionChart({ chartData, timeRange }: Props) {
             dataKey="outcome"
             type="natural"
             fill={chartConfig.outcome.color}
-            fillOpacity={0.4}
+            fillOpacity={hasIncome && hasOutcome ? 0.4 : 0}
             stroke={chartConfig.outcome.color}
-            stackId="a"
+            stackId={hasIncome && hasOutcome ? "a" : undefined}
           />
         )}
 
@@ -86,9 +86,9 @@ export function TransactionChart({ chartData, timeRange }: Props) {
             dataKey="income"
             type="natural"
             fill={chartConfig.income.color}
-            fillOpacity={0.4}
+            fillOpacity={hasIncome && hasOutcome ? 0.4 : 0}
             stroke={chartConfig.income.color}
-            stackId="a"
+            stackId={hasIncome && hasOutcome ? "a" : undefined}
           />
         )}
       </AreaChart>

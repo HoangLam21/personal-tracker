@@ -4,10 +4,14 @@ import StatCard, { StatCardProps } from "../card/StatCard";
 import { ArrowDownCircle, ArrowUpCircle, DollarSign } from "lucide-react";
 import {
   getChartData,
+  getTopExpenseCategoriesForPieChart,
   getTransactionSummary
 } from "@/lib/actions/transaction.action";
 import StatisticHeader from "../shared/StatisticHeader";
 import { TransactionChart } from "../chart/TransactionChart";
+import { OutcomePieChart } from "../chart/OutcomePieChart";
+import { IncomePieChart } from "../chart/IncomePieChart";
+import { ChartDataItem, PieChartData } from "@/constant";
 
 export default function TransactionChartForm({ userId }: { userId: string }) {
   const [chartType, setChartType] = useState<"general" | "income" | "outcome">(
@@ -21,9 +25,8 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
     expense: 0,
     profit: 0
   });
-  const [chartData, setChartData] = useState<
-    { month: string; income: number; outcome: number }[]
-  >([]);
+  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+  const [outcomeChartData, setOutcomeChartData] = useState<PieChartData[]>([]);
   const statData: StatCardProps[] = [
     {
       icon: <ArrowDownCircle className="w-full h-full" />,
@@ -59,8 +62,14 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
       setChartData(data);
     }
 
+    async function fetchOutcomePieChartData() {
+      const data = await getTopExpenseCategoriesForPieChart(userId);
+      setOutcomeChartData(data);
+    }
+
     fetchSummary();
     fetchChartData();
+    fetchOutcomePieChartData();
   }, [userId, timeRange, chartType]);
 
   return (
@@ -77,8 +86,17 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
           timeRange={timeRange}
           setTimeRange={setTimeRange}
         />
-        <div className="w-full h-full">
+        <div className="w-full flex-1">
           <TransactionChart chartData={chartData} timeRange={timeRange} />
+        </div>
+
+        <div className="w-full flex flex-1 items-start justify-between gap-6 ">
+          <div className="w-1/2 h-auto">
+            <OutcomePieChart chartData={outcomeChartData} />
+          </div>
+          <div className="flex-1 w-1/2 h-full">
+            <IncomePieChart />
+          </div>
         </div>
       </div>
     </div>

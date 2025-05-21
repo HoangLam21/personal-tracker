@@ -14,7 +14,7 @@ export default async function CategoryPage() {
   return (
     <main className="m-4 flex-1 flex flex-col gap-2 border border-gray-200 p-4 rounded-2xl">
       <Header
-        title="Finanace Chart"
+        title="Finance Chart"
         description="Keep track your financial plan"
       />
       <TransactionChartForm userId={userId} />
