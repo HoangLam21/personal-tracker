@@ -4,17 +4,19 @@ import StatCard, { StatCardProps } from "../card/StatCard";
 import { ArrowDownCircle, ArrowUpCircle, DollarSign } from "lucide-react";
 import {
   getChartData,
+  getIncomeExpenseComparison,
   getTopExpenseCategoriesForPieChart,
+  getTopIncomeCategoriesForBarChart,
   getTransactionSummary
 } from "@/lib/actions/transaction.action";
 import StatisticHeader from "../shared/StatisticHeader";
 import { TransactionChart } from "../chart/TransactionChart";
-import { OutcomePieChart } from "../chart/OutcomePieChart";
-import { IncomePieChart } from "../chart/IncomePieChart";
-import { ChartDataItem, PieChartData } from "@/constant";
+import { ExpensePieChart } from "../chart/ExpensePieChart";
+import { IncomeBarChart } from "../chart/IncomeBarChart";
+import { ChartDataItem, CategoryChartData, TrendResult } from "@/constant";
 
 export default function TransactionChartForm({ userId }: { userId: string }) {
-  const [chartType, setChartType] = useState<"general" | "income" | "outcome">(
+  const [chartType, setChartType] = useState<"general" | "income" | "expense">(
     "general"
   );
   const [timeRange, setTimeRange] = useState<"year" | "month" | "last7days">(
@@ -26,7 +28,14 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
     profit: 0
   });
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
-  const [outcomeChartData, setOutcomeChartData] = useState<PieChartData[]>([]);
+  const [expenseChartData, setexpenseChartData] = useState<CategoryChartData[]>(
+    []
+  );
+  const [incomeChartData, setIncomeChartData] = useState<CategoryChartData[]>(
+    []
+  );
+  const [outcomComparison, setexpenseComparison] = useState<TrendResult>();
+  const [incomComparison, setIncomeComparison] = useState<TrendResult>();
   const statData: StatCardProps[] = [
     {
       icon: <ArrowDownCircle className="w-full h-full" />,
@@ -37,7 +46,7 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
     },
     {
       icon: <ArrowUpCircle className="w-full h-full" />,
-      label: "Lifetime Outcome",
+      label: "Lifetime Expense",
       value: `${summary.expense.toLocaleString()} VND `,
       bgColor: "bg-red-100",
       iconColor: "text-red-500"
@@ -62,14 +71,26 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
       setChartData(data);
     }
 
-    async function fetchOutcomePieChartData() {
+    async function fetchexpensePieChartData() {
       const data = await getTopExpenseCategoriesForPieChart(userId);
-      setOutcomeChartData(data);
+      setexpenseChartData(data);
+    }
+
+    async function fetchIncomeBarChartData() {
+      const data = await getTopIncomeCategoriesForBarChart(userId);
+      setIncomeChartData(data);
+    }
+    async function fetchIncomeExpenseComparison() {
+      const { income, expense } = await getIncomeExpenseComparison(userId);
+      setIncomeComparison(income);
+      setexpenseComparison(expense);
     }
 
     fetchSummary();
     fetchChartData();
-    fetchOutcomePieChartData();
+    fetchexpensePieChartData();
+    fetchIncomeBarChartData();
+    fetchIncomeExpenseComparison();
   }, [userId, timeRange, chartType]);
 
   return (
@@ -92,10 +113,16 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
 
         <div className="w-full flex flex-1 items-start justify-between gap-6 ">
           <div className="w-1/2 h-auto">
-            <OutcomePieChart chartData={outcomeChartData} />
+            <ExpensePieChart
+              chartData={expenseChartData}
+              trend={outcomComparison}
+            />
           </div>
           <div className="flex-1 w-1/2 h-full">
-            <IncomePieChart />
+            <IncomeBarChart
+              chartData={incomeChartData}
+              trend={incomComparison}
+            />
           </div>
         </div>
       </div>

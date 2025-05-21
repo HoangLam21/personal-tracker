@@ -1,6 +1,6 @@
 import React from "react";
 
-export type ChartType = "general" | "income" | "outcome";
+export type ChartType = "general" | "income" | "expense";
 export type TimeRange = "year" | "month" | "last7days";
 
 export interface StatisticHeaderProps {
@@ -13,7 +13,7 @@ export interface StatisticHeaderProps {
 const chartOptions: { label: string; value: ChartType }[] = [
   { label: "General", value: "general" },
   { label: "Income Chart", value: "income" },
-  { label: "Outcome Chart", value: "outcome" }
+  { label: "Expense Chart", value: "expense" }
 ];
 
 const timeOptions: { label: string; value: TimeRange }[] = [

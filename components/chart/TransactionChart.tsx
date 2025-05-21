@@ -12,20 +12,20 @@ const chartConfig = {
     label: "Income",
     color: "#4F46E5"
   },
-  outcome: {
-    label: "Outcome",
+  expense: {
+    label: "Expense",
     color: "#F93939"
   }
 } satisfies ChartConfig;
 
 interface Props {
-  chartData: { month: string; income: number; outcome: number }[];
+  chartData: { month: string; income: number; expense: number }[];
   timeRange: "year" | "month" | "last7days";
 }
 
 export function TransactionChart({ chartData, timeRange }: Props) {
   const hasIncome = chartData.some((item) => item.income > 0);
-  const hasOutcome = chartData.some((item) => item.outcome > 0);
+  const hasExpense = chartData.some((item) => item.expense > 0);
 
   const formatXAxis = (value: string) => {
     if (timeRange === "year") return value.slice(0, 3);
@@ -70,14 +70,14 @@ export function TransactionChart({ chartData, timeRange }: Props) {
           content={<ChartTooltipContent indicator="dot" />}
         />
 
-        {hasOutcome && (
+        {hasExpense && (
           <Area
-            dataKey="outcome"
+            dataKey="expense"
             type="natural"
-            fill={chartConfig.outcome.color}
-            fillOpacity={hasIncome && hasOutcome ? 0.4 : 0}
-            stroke={chartConfig.outcome.color}
-            stackId={hasIncome && hasOutcome ? "a" : undefined}
+            fill={chartConfig.expense.color}
+            fillOpacity={hasIncome && hasExpense ? 0.4 : 0}
+            stroke={chartConfig.expense.color}
+            stackId={hasIncome && hasExpense ? "a" : undefined}
           />
         )}
 
@@ -86,9 +86,9 @@ export function TransactionChart({ chartData, timeRange }: Props) {
             dataKey="income"
             type="natural"
             fill={chartConfig.income.color}
-            fillOpacity={hasIncome && hasOutcome ? 0.4 : 0}
+            fillOpacity={hasIncome && hasExpense ? 0.4 : 0}
             stroke={chartConfig.income.color}
-            stackId={hasIncome && hasOutcome ? "a" : undefined}
+            stackId={hasIncome && hasExpense ? "a" : undefined}
           />
         )}
       </AreaChart>

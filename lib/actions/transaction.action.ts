@@ -3,8 +3,12 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import Transaction from "@/database/transaction.model";
 import mongoose, { Types } from "mongoose";
-import { redirect } from "next/navigation";
-import { ChartDataItem, PieChartData, TransactionSummary } from "@/constant";
+import {
+  CategoryChartData,
+  ChartDataItem,
+  TransactionSummary,
+  TrendResult
+} from "@/constant";
 import { ChartType, TimeRange } from "@/components/shared/StatisticHeader";
 
 // Lấy giao dịch theo ID
@@ -298,7 +302,7 @@ export async function getChartData(
       "December"
     ];
     months.forEach((month, i) => {
-      chartMap[(i + 1).toString()] = { month, income: 0, outcome: 0 };
+      chartMap[(i + 1).toString()] = { month, income: 0, expense: 0 };
     });
   } else {
     for (let d = 1; d <= 31; d++) {
@@ -306,7 +310,7 @@ export async function getChartData(
       chartMap[label] = {
         month: label.padStart(2, "0"),
         income: 0,
-        outcome: 0
+        expense: 0
       };
     }
   }
@@ -318,16 +322,16 @@ export async function getChartData(
 
     if (chartMap[label]) {
       if (type === "income") chartMap[label].income = total;
-      else chartMap[label].outcome = total;
+      else chartMap[label].expense = total;
     }
   });
 
-  return Object.values(chartMap).filter((d) => d.income > 0 || d.outcome > 0);
+  return Object.values(chartMap).filter((d) => d.income > 0 || d.expense > 0);
 }
-const top3Colors = ["#061246", "#2E4CE8", "#BAC3F8"];
+
 export async function getTopExpenseCategoriesForPieChart(
   userId: string
-): Promise<PieChartData[]> {
+): Promise<CategoryChartData[]> {
   await connectToDatabase();
 
   const sixMonthsAgo = new Date();
@@ -366,10 +370,10 @@ export async function getTopExpenseCategoriesForPieChart(
   const top3 = result.slice(0, 3);
   const others = result.slice(3);
 
-  const top3Data: PieChartData[] = top3.map((item, index) => ({
+  const top3Data: CategoryChartData[] = top3.map((item) => ({
     category: item.name || "Unknown",
     value: item.total,
-    fill: top3Colors[index] || "#6B7280" // fallback nếu thiếu màu
+    fill: item.fill || "#6B7280" // fallback nếu thiếu màu
   }));
 
   const othersTotal = others.reduce((sum, item) => sum + item.total, 0);
@@ -383,4 +387,147 @@ export async function getTopExpenseCategoriesForPieChart(
   }
 
   return top3Data;
+}
+
+export async function getTopIncomeCategoriesForBarChart(
+  userId: string
+): Promise<CategoryChartData[]> {
+  await connectToDatabase();
+
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  const result = await Transaction.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId),
+        type: "income",
+        date: { $gte: sixMonthsAgo }
+      }
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "categoryId",
+        foreignField: "_id",
+        as: "category"
+      }
+    },
+    { $unwind: "$category" },
+    {
+      $group: {
+        _id: "$category._id",
+        name: { $first: "$category.name" },
+        color: { $first: "$category.color" },
+        total: { $sum: "$amount" }
+      }
+    },
+    { $sort: { total: -1 } }
+  ]);
+
+  const top4 = result.slice(0, 4);
+  const others = result.slice(4);
+
+  const chartData: CategoryChartData[] = top4.map((item) => ({
+    category: item.name || "Unknown",
+    value: item.total,
+    fill: item.color || "#6B7280"
+  }));
+
+  const othersTotal = others.reduce((sum, item) => sum + item.total, 0);
+
+  if (othersTotal > 0) {
+    chartData.push({
+      category: "Others",
+      value: othersTotal,
+      fill: "#6B7280"
+    });
+  }
+
+  return chartData;
+}
+
+export async function getIncomeExpenseComparison(userId: string): Promise<{
+  income: TrendResult;
+  expense: TrendResult;
+}> {
+  await connectToDatabase();
+
+  const now = new Date();
+  const sixMonthsAgo = new Date(now);
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  const twelveMonthsAgo = new Date(now);
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+  const [currentIncome, previousIncome, currentExpense, previousExpense] =
+    await Promise.all([
+      Transaction.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId),
+            type: "income",
+            date: { $gte: sixMonthsAgo, $lte: now }
+          }
+        },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]),
+      Transaction.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId),
+            type: "income",
+            date: { $gte: twelveMonthsAgo, $lt: sixMonthsAgo }
+          }
+        },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]),
+      Transaction.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId),
+            type: "expense",
+            date: { $gte: sixMonthsAgo, $lte: now }
+          }
+        },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]),
+      Transaction.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId),
+            type: "expense",
+            date: { $gte: twelveMonthsAgo, $lt: sixMonthsAgo }
+          }
+        },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ])
+    ]);
+
+  function calculateTrend(current: number, previous: number): TrendResult {
+    if (previous === 0 && current > 0) {
+      return { direction: "up", percentage: 100, current, previous };
+    }
+
+    if (previous === 0 && current === 0) {
+      return { direction: "same", percentage: 0, current, previous };
+    }
+
+    const change = ((current - previous) / previous) * 100;
+    const percentage = Math.abs(Number(change.toFixed(1)));
+    const direction = change > 0 ? "up" : change < 0 ? "down" : "same";
+
+    return { direction, percentage, current, previous };
+  }
+
+  const income = calculateTrend(
+    currentIncome[0]?.total || 0,
+    previousIncome[0]?.total || 0
+  );
+  const expense = calculateTrend(
+    currentExpense[0]?.total || 0,
+    previousExpense[0]?.total || 0
+  );
+
+  return { income, expense };
 }
