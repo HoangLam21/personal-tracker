@@ -5,7 +5,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 
 export async function POST(req: Request) {
   const session = await auth();
-  const { email, phoneNumber } = await req.json();
+  const { email, phoneNumber, name, avatar } = await req.json();
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -27,6 +27,16 @@ export async function POST(req: Request) {
 
   if (phoneNumber && phoneNumber !== user.phoneNumber) {
     user.phoneNumber = phoneNumber;
+    updated = true;
+  }
+
+  if (name && name !== user.name) {
+    user.name = name;
+    updated = true;
+  }
+
+  if (avatar && avatar !== user.avatar) {
+    user.avatar = avatar;
     updated = true;
   }
 

@@ -9,10 +9,14 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await connectToDatabase();
-  const user = await User.findById(session.user.id).select("name avatar");
+  const user = await User.findById(session.user.id).select(
+    "name avatar email phoneNumber"
+  );
 
   return NextResponse.json({
     name: user.name,
-    avatar: user.avatar || "/avatar.png"
+    avatar: user.avatar || "/avatar.png",
+    email: user.email,
+    phoneNumber: user.phoneNumber
   });
 }

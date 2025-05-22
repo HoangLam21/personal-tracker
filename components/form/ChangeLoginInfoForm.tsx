@@ -1,7 +1,9 @@
 "use client";
+import { useUserContext } from "@/context/UserContext";
 import React, { useState, useEffect } from "react";
 
 const ChangeLoginInfoForm = () => {
+  const { user, setUser } = useUserContext();
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +22,11 @@ const ChangeLoginInfoForm = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isValid) return;
+    setUser({
+      ...user,
+      email: email ? email : user.email,
+      phoneNumber: phone ? phone : user.phoneNumber
+    });
     const form = new FormData(e.currentTarget);
     const res = await fetch("/api/update-account", {
       method: "POST",
@@ -48,6 +55,7 @@ const ChangeLoginInfoForm = () => {
           name="email"
           type="email"
           value={email}
+          placeholder={email || user.email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full h-10 border px-3 rounded-md"
         />
@@ -59,6 +67,7 @@ const ChangeLoginInfoForm = () => {
           name="phoneNumber"
           type="tel"
           value={phone}
+          placeholder={phone || user.phoneNumber}
           onChange={(e) => setPhone(e.target.value)}
           className="w-full h-10 border px-3 rounded-md"
         />
@@ -70,7 +79,7 @@ const ChangeLoginInfoForm = () => {
         type="submit"
         disabled={!isValid}
         className={`bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition ${
-          !isValid ? "opacity-50 cursor-not-allowed" : ""
+          !isValid ? "opacity-50 cursor-not-allowed" : " cursor-pointer"
         }`}
       >
         Update Login Info

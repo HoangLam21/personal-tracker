@@ -3,6 +3,7 @@ import ChangePasswordForm from "@/components/form/ChangePasswordForm";
 import ChangeLoginInfoForm from "@/components/form/ChangeLoginInfoForm";
 import Header from "@/components/shared/Header";
 import React from "react";
+import ChangeProfileForm from "@/components/form/ChangeProfileForm";
 
 export default async function Page() {
   const session = await auth();
@@ -33,6 +34,16 @@ export default async function Page() {
         <h3 className="text-lg font-semibold">Change Login Information</h3>
         <div className="flex items-center justify-center w-full">
           <ChangeLoginInfoForm />
+        </div>
+      </div>
+
+      <hr className="my-4 border-gray-300 w-full" />
+
+      {/* Change Profile */}
+      <div className="flex flex-col px-12 py-3 gap-6 w-full items-start">
+        <h3 className="text-lg font-semibold">Change Profile</h3>
+        <div className="flex items-center justify-center w-full">
+          <ChangeProfileForm />
         </div>
       </div>
     </main>

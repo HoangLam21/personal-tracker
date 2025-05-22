@@ -8,18 +8,33 @@ import {
   Settings,
   LogOut
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { NavigationItem } from "./NavigationItem";
 import { Button } from "../ui/button/Button";
 import { cn } from "@/lib/utils";
 import SidebarUserInfo from "./SidebarUserInfo";
 import { signOut } from "next-auth/react";
+import { useUserContext } from "@/context/UserContext";
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const { setUser } = useUserContext();
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        const data = await res.json();
+        if (res.ok) setUser(data);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (e) {
+        console.error("Failed to fetch user profile");
+      }
+    };
+    fetchUser();
+  }, []);
   return (
     <aside
       className={cn(
