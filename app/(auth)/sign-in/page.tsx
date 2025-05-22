@@ -1,5 +1,5 @@
 // app/login/page.tsx
-'use client';
+"use client";
 
 import { Button } from "@/components/ui/button/Button";
 import { Input } from "@/components/ui/input/Input";
@@ -18,9 +18,9 @@ export default function LoginPage() {
       email: form.get("email"),
       password: form.get("password"),
       redirect: false,
-      callbackUrl: "/dashboard",
+      callbackUrl: "/dashboard"
     });
-    
+
     if (res?.ok && res.url) {
       router.push(res.url); // chính xác hơn
     } else {
@@ -30,10 +30,17 @@ export default function LoginPage() {
 
   return (
     <form onSubmit={handleLogin} className="flex flex-col gap-3 max-w-[400px]">
-      <Input name="email" type="email" required placeholder="Email"/>
-      <Input name="password" type="password" required placeholder="Password"/>
+      <Input
+        name="email"
+        type="email"
+        required
+        placeholder="Email or Phone number"
+      />
+      <Input name="password" type="password" required placeholder="Password" />
       <Button type="submit">Đăng nhập</Button>
-      <Button variant="outline" onClick={() => signIn("google")}>Đăng nhập với google</Button>
+      <Button variant="outline" onClick={() => signIn("google")}>
+        Đăng nhập với google
+      </Button>
       {error && <p>{error}</p>}
     </form>
   );

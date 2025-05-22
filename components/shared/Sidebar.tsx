@@ -5,7 +5,7 @@ import {
   Wallet,
   LayoutDashboard,
   Menu,
-  Settings,
+  Settings
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -35,9 +35,15 @@ export const Sidebar = () => {
           )}
         >
           {!collapsed && (
-            <div className="text-xl font-semibold tracking-wide">🔄 Personal Tracker</div>
+            <div className="text-xl font-semibold tracking-wide">
+              🔄 Personal Tracker
+            </div>
           )}
-          <Button size="sm" variant="ghost" onClick={() => setCollapsed(!collapsed)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setCollapsed(!collapsed)}
+          >
             <Menu />
           </Button>
         </div>
@@ -85,7 +91,7 @@ export const Sidebar = () => {
           )}
         >
           <Image
-            src="/avatar.jpg"
+            src="/avatar.png"
             alt="avatar"
             width={32}
             height={32}

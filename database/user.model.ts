@@ -13,12 +13,12 @@ export interface IUser extends Document {
 const UserSchema = new Schema<IUser>(
   {
     name: { type: String },
-    email: { type: String, required: true, unique: true },
-    phoneNumber: { type: String, required: true },
+    email: { type: String, required: true, unique: true, sparse: true },
+    phoneNumber: { type: String, required: true, unique: true, sparse: true },
     passwordHash: { type: String },
     avatar: { type: String, required: false },
     createdAt: { type: Date, default: () => new Date() },
-    updatedAt: { type: Date },
+    updatedAt: { type: Date }
   },
   { timestamps: false }
 );

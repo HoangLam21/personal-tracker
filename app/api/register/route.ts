@@ -13,12 +13,18 @@ interface RegisterBody {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, phoneNumber, password }: RegisterBody = await req.json();
+    const { name, email, phoneNumber, password }: RegisterBody =
+      await req.json();
     await connectToDatabase();
 
-    const existing = await User.findOne({ email });
+    const existing = await User.findOne({
+      $or: [{ email }, { phoneNumber: email }]
+    });
     if (existing) {
-      return NextResponse.json({ error: "Email đã tồn tại" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Email or Phone number đã tồn tại" },
+        { status: 400 }
+      );
     }
 
     const passwordHash = await hashPassword(password);
