@@ -18,9 +18,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  user.email = email;
-  user.phoneNumber = phoneNumber;
-  await user.save();
+  let updated = false;
 
-  return NextResponse.json({ message: "Account info updated successfully" });
+  if (email && email !== user.email) {
+    user.email = email;
+    updated = true;
+  }
+
+  if (phoneNumber && phoneNumber !== user.phoneNumber) {
+    user.phoneNumber = phoneNumber;
+    updated = true;
+  }
+
+  if (updated) {
+    await user.save();
+    return NextResponse.json({ message: "Account info updated successfully" });
+  } else {
+    return NextResponse.json({ message: "No changes made" });
+  }
 }

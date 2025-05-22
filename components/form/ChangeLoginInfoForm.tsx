@@ -8,8 +8,8 @@ const ChangeLoginInfoForm = () => {
   const [isValid, setIsValid] = useState(false);
 
   useEffect(() => {
-    if (!email || !phone) {
-      setError("Please fill in both fields.");
+    if (!email && !phone) {
+      setError("Please fill in any fields.");
       setIsValid(false);
     } else {
       setError(null);
@@ -17,10 +17,27 @@ const ChangeLoginInfoForm = () => {
     }
   }, [email, phone]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isValid) return;
-    alert("Login info updated!");
+    const form = new FormData(e.currentTarget);
+    const res = await fetch("/api/update-account", {
+      method: "POST",
+      body: JSON.stringify({
+        email: form.get("email"),
+        phoneNumber: form.get("phoneNumber")
+      }),
+      headers: { "Content-Type": "application/json" }
+    });
+    if (res.ok) {
+      setEmail("");
+      setPhone("");
+      const result = await res.json();
+      alert(result.message);
+    } else {
+      const result = await res.json();
+      setError(result.error || "Fail to change password");
+    }
   };
 
   return (
@@ -28,22 +45,22 @@ const ChangeLoginInfoForm = () => {
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">Email</label>
         <input
+          name="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full h-10 border px-3 rounded-md"
-          required
         />
       </div>
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">Phone Number</label>
         <input
+          name="phoneNumber"
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           className="w-full h-10 border px-3 rounded-md"
-          required
         />
       </div>
 
