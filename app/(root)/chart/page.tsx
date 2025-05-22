@@ -3,7 +3,7 @@ import TransactionChartForm from "@/components/form/TransactionChartForm";
 import Header from "@/components/shared/Header";
 import React from "react";
 
-export default async function CategoryPage() {
+export default async function Page() {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) {

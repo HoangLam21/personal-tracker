@@ -1,6 +1,7 @@
 "use server";
 
 import { connectToDatabase } from "@/lib/mongodb";
+import "@/database/category.model";
 import Transaction from "@/database/transaction.model";
 import mongoose, { Types } from "mongoose";
 import {

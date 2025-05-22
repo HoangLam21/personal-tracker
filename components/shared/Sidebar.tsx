@@ -6,18 +6,35 @@ import {
   LayoutDashboard,
   Menu,
   Settings,
+  LogOut
 } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { NavigationItem } from "./NavigationItem";
 import { Button } from "../ui/button/Button";
 import { cn } from "@/lib/utils";
+import SidebarUserInfo from "./SidebarUserInfo";
+import { signOut } from "next-auth/react";
+import { useUserContext } from "@/context/UserContext";
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const { setUser } = useUserContext();
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        const data = await res.json();
+        if (res.ok) setUser(data);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (e) {
+        console.error("Failed to fetch user profile");
+      }
+    };
+    fetchUser();
+  }, []);
   return (
     <aside
       className={cn(
@@ -35,9 +52,15 @@ export const Sidebar = () => {
           )}
         >
           {!collapsed && (
-            <div className="text-xl font-semibold tracking-wide">🔄 Personal Tracker</div>
+            <div className="text-xl font-semibold tracking-wide">
+              🔄 Personal Tracker
+            </div>
           )}
-          <Button size="sm" variant="ghost" onClick={() => setCollapsed(!collapsed)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setCollapsed(!collapsed)}
+          >
             <Menu />
           </Button>
         </div>
@@ -78,23 +101,18 @@ export const Sidebar = () => {
           active={pathname.startsWith("/settings")}
           collapsed={collapsed}
         />
-        <div
-          className={cn(
-            "border-t border-white/10 pt-4 flex items-center gap-3 px-2",
-            collapsed && "justify-center"
-          )}
-        >
-          <Image
-            src="/avatar.jpg"
-            alt="avatar"
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
-          {!collapsed && (
-            <span className="text-sm font-medium text-white">Adrian Tra</span>
-          )}
-        </div>
+        <SidebarUserInfo collapsed={collapsed} />
+        {!collapsed && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => signOut({ callbackUrl: "/sign-in" })}
+            className="text-white w-full flex items-center gap-2 px-2 py-4 h-10 cursor-pointer hover:bg-white/10 rounded-md transition"
+          >
+            <LogOut size={16} />
+            <span className="text-sm font-medium">Logout</span>
+          </Button>
+        )}
       </div>
     </aside>
   );

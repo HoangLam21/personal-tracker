@@ -7,7 +7,7 @@ export async function middleware(req: NextRequest) {
   const session = await auth();
 
   // Chỉ bảo vệ các path cụ thể
-  const protectedRoutes = [ "/settings", "/admin"];
+  const protectedRoutes = ["/admin"];
 
   const isProtected = protectedRoutes.some((route) =>
     req.nextUrl.pathname.startsWith(route)
@@ -22,5 +22,5 @@ export async function middleware(req: NextRequest) {
 
 // cấu hình matcher
 export const config = {
-  matcher: [ "/settings/:path*", "/admin/:path*"],
+  matcher: ["/admin/:path*"]
 };
