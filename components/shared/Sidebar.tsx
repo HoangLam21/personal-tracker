@@ -5,14 +5,16 @@ import {
   Wallet,
   LayoutDashboard,
   Menu,
-  Settings
+  Settings,
+  LogOut
 } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { NavigationItem } from "./NavigationItem";
 import { Button } from "../ui/button/Button";
 import { cn } from "@/lib/utils";
+import SidebarUserInfo from "./SidebarUserInfo";
+import { signOut } from "next-auth/react";
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -84,23 +86,18 @@ export const Sidebar = () => {
           active={pathname.startsWith("/settings")}
           collapsed={collapsed}
         />
-        <div
-          className={cn(
-            "border-t border-white/10 pt-4 flex items-center gap-3 px-2",
-            collapsed && "justify-center"
-          )}
-        >
-          <Image
-            src="/avatar.png"
-            alt="avatar"
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
-          {!collapsed && (
-            <span className="text-sm font-medium text-white">Adrian Tra</span>
-          )}
-        </div>
+        <SidebarUserInfo collapsed={collapsed} />
+        {!collapsed && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => signOut({ callbackUrl: "/sign-in" })}
+            className="text-white w-full flex items-center gap-2 px-2 py-4 h-10 cursor-pointer hover:bg-white/10 rounded-md transition"
+          >
+            <LogOut size={16} />
+            <span className="text-sm font-medium">Logout</span>
+          </Button>
+        )}
       </div>
     </aside>
   );
