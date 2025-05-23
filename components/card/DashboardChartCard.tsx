@@ -15,15 +15,15 @@ const DashboardChartCard = ({ title, data }: Props) => {
 
   return (
     <Card className="border border-gray-200 rounded-xl shadow-sm h-full">
-      <CardContent className="px-4 pt-0 gap-3 h-full flex flex-col">
+      <CardContent className="px-4 pt-0 h-full flex flex-col">
         <h3 className="font-semibold mb-4 flex items-center justify-between">
           {title}
           <span className="text-sm text-muted-foreground">✏️</span>
         </h3>
 
         <div className="flex items-center flex-1">
-          <ResponsiveContainer width="60%" height={180}>
-            <DashboardPieChart data={data} />
+          <ResponsiveContainer width="60%" height={240}>
+            <DashboardPieChart data={data} title={title.split(" ")[1]} />
           </ResponsiveContainer>
 
           <div className="grid grid-cols-2 w-full divide-x divide-gray-300">

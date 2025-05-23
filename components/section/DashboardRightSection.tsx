@@ -23,7 +23,7 @@ const DashboardRightSection = ({
   filteredSpending
 }: Props) => {
   return (
-    <div className="lg:w-[320px] max-h-full overflow-y-auto border border-gray-200 rounded-xl p-4 flex flex-col gap-4 shadow-sm bg-white">
+    <div className="lg:w-[320px] max-h-[830px] h-[830px] overflow-y-auto border border-gray-200 rounded-xl p-4 flex flex-col gap-4 shadow-sm bg-white">
       <div className="flex items-center justify-between mb-2">
         <button
           onClick={() =>

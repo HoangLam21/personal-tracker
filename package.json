@@ -19,6 +19,7 @@
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.6.1",
     "clsx": "^2.1.1",
+    "color": "^5.0.0",
     "dayjs": "^1.11.13",
     "framer-motion": "^12.12.1",
     "lucide-react": "^0.503.0",

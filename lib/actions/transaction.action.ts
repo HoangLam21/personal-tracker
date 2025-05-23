@@ -7,10 +7,13 @@ import mongoose, { Types } from "mongoose";
 import {
   CategoryChartData,
   ChartDataItem,
+  getCategoryIcon,
   TransactionSummary,
   TrendResult
 } from "@/constant";
 import { ChartType, TimeRange } from "@/components/shared/StatisticHeader";
+import dayjs from "dayjs";
+import { mapHexToTailwind500 } from "../utils";
 
 // Lấy giao dịch theo ID
 export async function getTransactionById(id: string, userId: string) {
@@ -531,4 +534,161 @@ export async function getIncomeExpenseComparison(userId: string): Promise<{
   );
 
   return { income, expense };
+}
+
+//StatCard at Dashboard
+export async function calculateMonthlyStats(userId: string) {
+  const start = dayjs().startOf("month").toDate();
+  const end = dayjs().endOf("day").toDate();
+
+  const [incomeResult, expenseResult] = await Promise.all([
+    Transaction.aggregate([
+      {
+        $match: {
+          userId: new Types.ObjectId(userId),
+          type: "income",
+          date: { $gte: start, $lte: end }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" }
+        }
+      }
+    ]),
+    Transaction.aggregate([
+      {
+        $match: {
+          userId: new Types.ObjectId(userId),
+          type: "expense",
+          date: { $gte: start, $lte: end }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" }
+        }
+      }
+    ])
+  ]);
+
+  const totalIncome = incomeResult[0]?.total || 0;
+  const totalExpense = expenseResult[0]?.total || 0;
+  const balance = totalIncome - totalExpense;
+
+  return { totalIncome, totalExpense, balance };
+}
+
+export async function getTopCategoriesByType(
+  userId: string,
+  type: "income" | "expense"
+) {
+  const start = dayjs().startOf("month").toDate();
+  const end = dayjs().endOf("day").toDate();
+
+  const result = await Transaction.aggregate([
+    {
+      $match: {
+        userId: new Types.ObjectId(userId),
+        type,
+        date: { $gte: start, $lte: end }
+      }
+    },
+    {
+      $group: {
+        _id: "$categoryId",
+        total: { $sum: "$amount" }
+      }
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "_id",
+        foreignField: "_id",
+        as: "category"
+      }
+    },
+    { $unwind: "$category" },
+    {
+      $project: {
+        _id: 0,
+        name: "$category.name",
+        value: "$total",
+        color: "$category.color"
+      }
+    },
+    { $sort: { value: -1 } }
+  ]);
+
+  const top10 = result.slice(0, 10);
+  const rest = result.slice(10);
+
+  const otherTotal = rest.reduce((sum, item) => sum + item.value, 0);
+
+  if (otherTotal > 0) {
+    top10.push({
+      name: "Other",
+      value: otherTotal,
+      color: "#D1D5DB" // gray
+    });
+  }
+
+  return top10;
+}
+
+export async function getAllUserSpendingGroupedByDate(userId: string) {
+  const raw = await Transaction.aggregate([
+    {
+      $match: {
+        userId: new Types.ObjectId(userId),
+        type: "expense"
+      }
+    },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "categoryId",
+        foreignField: "_id",
+        as: "category"
+      }
+    },
+    { $unwind: "$category" },
+    {
+      $project: {
+        date: {
+          $dateToString: { format: "%Y-%m-%d", date: "$date" }
+        },
+        category: "$category.name",
+        color: "$category.color",
+        amount: 1,
+        method: 1,
+        _id: 0
+      }
+    },
+    { $sort: { date: -1 } }
+  ]);
+
+  // Group by date
+  const grouped: Record<string, any[]> = {};
+
+  for (const tx of raw) {
+    const date = tx.date;
+    if (!grouped[date]) {
+      grouped[date] = [];
+    }
+    grouped[date].push({
+      category: tx.category,
+      amount: tx.amount,
+      method: tx.method,
+      color: mapHexToTailwind500(tx.color),
+      icon: getCategoryIcon(tx.category)
+    });
+  }
+
+  return Object.entries(grouped).map(([date, items]) => ({
+    date,
+    items
+  }));
 }
