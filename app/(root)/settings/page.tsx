@@ -4,7 +4,7 @@ import React from "react";
 import ChangePasswordForm from "@/components/form/ChangePasswordForm";
 import ChangeLoginInfoForm from "@/components/form/ChangeLoginInfoForm";
 import ChangeProfileForm from "@/components/form/ChangeProfileForm";
-import SettingSection from "@/components/shared/SettingSection";
+import SettingSection from "@/components/section/SettingSection";
 
 export default async function Page() {
   const session = await auth();

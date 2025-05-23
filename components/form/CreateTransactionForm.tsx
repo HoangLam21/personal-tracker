@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button/Button";
 import { Selection } from "@/components/ui/selection/Selection";
 import { createTransaction } from "@/lib/actions/transaction.action";
 import { getAllCategories } from "@/lib/actions/category.action";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import dayjs from "dayjs";
 
 const initialState = { success: false, message: "" };
 
 const typeOptions = [
   { label: "Thu nhập", value: "income" },
-  { label: "Chi tiêu", value: "expense" },
+  { label: "Chi tiêu", value: "expense" }
 ];
 
 interface Category {
@@ -26,16 +27,32 @@ interface Props {
 }
 
 export default function CreateTransactionForm({ userId }: Props) {
+  const searchParams = useSearchParams();
+  const rawType = searchParams.get("type");
   const [type, setType] = useState<"income" | "expense">("income");
   const [formState, formAction] = useActionState(
     createTransaction,
     initialState
   );
   const [categories, setCategories] = useState<Category[]>([]);
+  const [amountRaw, setAmountRaw] = useState<number | "">("");
+  const formatted =
+    amountRaw === "" ? "" : new Intl.NumberFormat("vi-VN").format(amountRaw);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const limit = 10;
   const router = useRouter();
+
+  useEffect(() => {
+    if (rawType === "income" || rawType === "expense") {
+      setType(rawType);
+    }
+  }, [rawType]);
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("type", type);
+    window.history.replaceState({}, "", url.toString());
+  }, [type]);
 
   useEffect(() => {
     const loadInitial = async () => {
@@ -73,12 +90,25 @@ export default function CreateTransactionForm({ userId }: Props) {
       {/* Số tiền */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">Số tiền</label>
-        <Input name="amount" type="number" step="0.01" required />
+        <Input
+          name="displayAmount"
+          type="text"
+          inputMode="numeric"
+          value={formatted}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/[^\d]/g, ""); // xoá ký tự không phải số
+            setAmountRaw(raw === "" ? "" : Number(raw));
+          }}
+        />
+        {/* Dữ liệu thực tế để submit */}
+        <input type="hidden" name="amount" value={amountRaw} />
       </div>
 
       {/* Loại giao dịch */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Loại giao dịch</label>
+        <label className="text-sm font-medium text-gray-700">
+          Loại giao dịch
+        </label>
         <Selection
           options={typeOptions}
           value={type}
@@ -117,7 +147,12 @@ export default function CreateTransactionForm({ userId }: Props) {
       {/* Ngày */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">Ngày</label>
-        <Input name="date" type="date" required />
+        <Input
+          name="date"
+          type="date"
+          required
+          defaultValue={dayjs().format("YYYY-MM-DD")}
+        />
       </div>
 
       {/* Ghi chú */}

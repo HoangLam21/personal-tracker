@@ -32,3 +32,9 @@ export function generateChartConfig(
     return acc;
   }, {} as Record<string, { label: string; color: string }>);
 }
+
+export const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD"
+  }).format(amount);
