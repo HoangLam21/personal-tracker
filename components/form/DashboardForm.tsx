@@ -1,0 +1,166 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Header from "../shared/Header";
+import { useUserContext } from "@/context/UserContext";
+import { formatCurrency } from "@/lib/utils";
+import { Plus, PiggyBank, ArrowDownCircle } from "lucide-react";
+import dayjs from "dayjs";
+import DashboardLeftSection from "../section/DashboardLeftSection";
+import DashboardRightSection from "../section/DashboardRightSection";
+import DashboardHeaderActions from "../action/DashboardHeaderActions";
+import {
+  calculateMonthlyStats,
+  getAllUserSpendingGroupedByDate,
+  getTopCategoriesByType
+} from "@/lib/actions/transaction.action";
+type SpendingItem = {
+  category: string;
+  amount: number;
+  method: string;
+  icon: React.ReactNode;
+  color: string;
+};
+
+type SpendingGroup = {
+  date: string; // ví dụ: "May 24"
+  items: SpendingItem[];
+};
+
+const DashboardForm = ({ userId }: { userId: string }) => {
+  const { user } = useUserContext();
+  const [selectedMonth, setSelectedMonth] = useState(dayjs().format("YYYY-MM"));
+  const [statItems, setStatItems] = useState<
+    {
+      icon: React.ReactNode;
+      bgColor: string;
+      label: string;
+      value: string;
+      isDashboard?: boolean;
+    }[]
+  >([
+    {
+      icon: <Plus className="w-6 h-6" />,
+      bgColor: "bg-yellow-500",
+      label: "Incomes",
+      value: formatCurrency(0),
+      isDashboard: true
+    },
+    {
+      icon: <ArrowDownCircle className="w-6 h-6" />,
+      bgColor: "bg-red-500",
+      label: "Expenses",
+      value: formatCurrency(0),
+      isDashboard: true
+    },
+    {
+      icon: <PiggyBank className="w-6 h-6" />,
+      bgColor: "bg-green-500",
+      label: "Savings/Debt",
+      value: formatCurrency(0),
+      isDashboard: true
+    }
+  ]);
+  const [incomeCategories, setIncomeCategory] = useState<
+    { name: string; value: number; color: string }[]
+  >([{ name: "", value: 0, color: "" }]);
+  const [expenseCategories, setExpenseCategory] = useState<
+    { name: string; value: number; color: string }[]
+  >([{ name: "", value: 0, color: "" }]);
+
+  const [spendingData, setSpendingData] = useState<SpendingGroup[]>([]);
+
+  useEffect(() => {
+    async function calculateStatData() {
+      const { totalIncome, totalExpense, balance } =
+        await calculateMonthlyStats(userId);
+      const items = [
+        {
+          icon: <Plus className="w-6 h-6" />,
+          bgColor: "bg-yellow-500",
+          label: "Incomes",
+          value: formatCurrency(totalIncome),
+          isDashboard: true
+        },
+        {
+          icon: <ArrowDownCircle className="w-6 h-6" />,
+          bgColor: "bg-red-500",
+          label: "Expenses",
+          value: formatCurrency(totalExpense),
+          isDashboard: true
+        },
+        {
+          icon: <PiggyBank className="w-6 h-6" />,
+          bgColor: "bg-green-500",
+          label: "Savings/Debt",
+          value: formatCurrency(balance),
+          isDashboard: true
+        }
+      ];
+
+      setStatItems(items);
+    }
+
+    async function calculateCategories() {
+      const incomeCategories = await getTopCategoriesByType(userId, "income");
+      const expenseCategories = await getTopCategoriesByType(userId, "expense");
+      setIncomeCategory(incomeCategories);
+      setExpenseCategory(expenseCategories);
+    }
+
+    async function calculateSpending() {
+      const spendingData = await getAllUserSpendingGroupedByDate(userId);
+      setSpendingData(spendingData);
+    }
+
+    calculateStatData();
+    calculateCategories();
+    calculateSpending();
+  }, [userId]);
+
+  const isCurrentMonth = selectedMonth === dayjs().format("YYYY-MM");
+
+  // Convert "February 28" -> "2023-02-28" để so sánh lọc tháng
+  const normalizedSpending = spendingData.map((group) => {
+    const parsedDate = dayjs(group.date);
+    return {
+      ...group,
+      dateKey: parsedDate.format("YYYY-MM-DD"),
+      dayTitle: parsedDate.format("MMMM D")
+    };
+  });
+  // Lọc các spending trong tháng đang chọn (ví dụ "2023-02")
+  const filteredSpending = normalizedSpending
+    .filter((group) => group.dateKey.startsWith(selectedMonth))
+    .sort((a, b) => (dayjs(b.dateKey).isAfter(dayjs(a.dateKey)) ? 1 : -1));
+
+  return (
+    <main className="m-4 flex-1 flex flex-col gap-6 border border-gray-200 p-6 rounded-2xl">
+      <Header
+        title={`Welcome, ${user.name}`}
+        description="Keep track your financial plan"
+      />
+
+      <DashboardHeaderActions />
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Left side: charts and stats */}
+        <DashboardLeftSection
+          incomeCategories={incomeCategories}
+          expenseCategories={expenseCategories}
+          statItems={statItems}
+        />
+
+        {/* Right side: today's spending */}
+        <DashboardRightSection
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          isCurrentMonth={isCurrentMonth}
+          filteredSpending={filteredSpending}
+        />
+      </div>
+    </main>
+  );
+};
+
+export default DashboardForm;
