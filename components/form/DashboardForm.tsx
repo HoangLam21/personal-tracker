@@ -71,51 +71,51 @@ const DashboardForm = ({ userId }: { userId: string }) => {
   const [spendingData, setSpendingData] = useState<SpendingGroup[]>([]);
 
   useEffect(() => {
-    async function calculateStatData() {
-      const { totalIncome, totalExpense, balance } =
-        await calculateMonthlyStats(userId);
-      const items = [
-        {
-          icon: <Plus className="w-6 h-6" />,
-          bgColor: "bg-yellow-500",
-          label: "Incomes",
-          value: formatCurrency(totalIncome),
-          isDashboard: true
-        },
-        {
-          icon: <ArrowDownCircle className="w-6 h-6" />,
-          bgColor: "bg-red-500",
-          label: "Expenses",
-          value: formatCurrency(totalExpense),
-          isDashboard: true
-        },
-        {
-          icon: <PiggyBank className="w-6 h-6" />,
-          bgColor: "bg-green-500",
-          label: "Savings/Debt",
-          value: formatCurrency(balance),
-          isDashboard: true
-        }
-      ];
+    async function fetchAllDashboardData() {
+      try {
+        const [stats, incomeCategories, expenseCategories, spending] =
+          await Promise.all([
+            calculateMonthlyStats(userId),
+            getTopCategoriesByType(userId, "income"),
+            getTopCategoriesByType(userId, "expense"),
+            getAllUserSpendingGroupedByDate(userId)
+          ]);
 
-      setStatItems(items);
+        // Tổng thu chi
+        const statItems = [
+          {
+            icon: <Plus className="w-6 h-6" />,
+            bgColor: "bg-yellow-500",
+            label: "Incomes",
+            value: formatCurrency(stats.totalIncome),
+            isDashboard: true
+          },
+          {
+            icon: <ArrowDownCircle className="w-6 h-6" />,
+            bgColor: "bg-red-500",
+            label: "Expenses",
+            value: formatCurrency(stats.totalExpense),
+            isDashboard: true
+          },
+          {
+            icon: <PiggyBank className="w-6 h-6" />,
+            bgColor: "bg-green-500",
+            label: "Savings/Debt",
+            value: formatCurrency(stats.balance),
+            isDashboard: true
+          }
+        ];
+
+        setStatItems(statItems);
+        setIncomeCategory(incomeCategories);
+        setExpenseCategory(expenseCategories);
+        setSpendingData(spending);
+      } catch (err) {
+        console.error("Dashboard data fetch error:", err);
+      }
     }
 
-    async function calculateCategories() {
-      const incomeCategories = await getTopCategoriesByType(userId, "income");
-      const expenseCategories = await getTopCategoriesByType(userId, "expense");
-      setIncomeCategory(incomeCategories);
-      setExpenseCategory(expenseCategories);
-    }
-
-    async function calculateSpending() {
-      const spendingData = await getAllUserSpendingGroupedByDate(userId);
-      setSpendingData(spendingData);
-    }
-
-    calculateStatData();
-    calculateCategories();
-    calculateSpending();
+    fetchAllDashboardData();
   }, [userId]);
 
   const isCurrentMonth = selectedMonth === dayjs().format("YYYY-MM");

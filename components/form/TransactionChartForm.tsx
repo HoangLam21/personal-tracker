@@ -61,36 +61,34 @@ export default function TransactionChartForm({ userId }: { userId: string }) {
   ];
 
   useEffect(() => {
-    async function fetchSummary() {
-      const data = await getTransactionSummary(userId);
-      setSummary(data);
+    async function fetchAllDashboardCharts() {
+      try {
+        const [
+          summary,
+          chartData,
+          expensePieChartData,
+          incomeBarChartData,
+          comparison
+        ] = await Promise.all([
+          getTransactionSummary(userId),
+          getChartData(userId, timeRange, chartType),
+          getTopExpenseCategoriesForPieChart(userId),
+          getTopIncomeCategoriesForBarChart(userId),
+          getIncomeExpenseComparison(userId)
+        ]);
+
+        setSummary(summary);
+        setChartData(chartData);
+        setexpenseChartData(expensePieChartData);
+        setIncomeChartData(incomeBarChartData);
+        setIncomeComparison(comparison.income);
+        setexpenseComparison(comparison.expense);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      }
     }
 
-    async function fetchChartData() {
-      const data = await getChartData(userId, timeRange, chartType);
-      setChartData(data);
-    }
-
-    async function fetchexpensePieChartData() {
-      const data = await getTopExpenseCategoriesForPieChart(userId);
-      setexpenseChartData(data);
-    }
-
-    async function fetchIncomeBarChartData() {
-      const data = await getTopIncomeCategoriesForBarChart(userId);
-      setIncomeChartData(data);
-    }
-    async function fetchIncomeExpenseComparison() {
-      const { income, expense } = await getIncomeExpenseComparison(userId);
-      setIncomeComparison(income);
-      setexpenseComparison(expense);
-    }
-
-    fetchSummary();
-    fetchChartData();
-    fetchexpensePieChartData();
-    fetchIncomeBarChartData();
-    fetchIncomeExpenseComparison();
+    fetchAllDashboardCharts();
   }, [userId, timeRange, chartType]);
 
   return (
