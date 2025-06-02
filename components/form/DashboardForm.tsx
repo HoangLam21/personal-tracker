@@ -137,8 +137,8 @@ const DashboardForm = ({ userId }: { userId: string }) => {
   return (
     <main className="m-4 flex-1 flex flex-col gap-6 border border-gray-200 p-6 rounded-2xl">
       <Header
-        title={`Welcome, ${user.name}`}
-        description="Keep track your financial plan"
+        title={`Chào mừng bạn trở lại, ${user.name}`}
+        description="Hãy cùng quản lý chi tiêu thông minh."
       />
 
       <DashboardHeaderActions />

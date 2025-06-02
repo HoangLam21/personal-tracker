@@ -8,7 +8,7 @@ const DashboardAction = ({ type }: { type: "income" | "expense" }) => {
       variant={type === "income" ? "outline" : "default"}
       onClick={() => router.push(`/finance/create?type=${type}`)}
     >
-      Add an {type}
+      Thêm {type === "income" ? "thu nhập" : " chi tiêu"}
     </Button>
   );
 };

@@ -1,4 +1,3 @@
-// app/signup/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -24,21 +23,49 @@ export default function SignupPage() {
       headers: { "Content-Type": "application/json" }
     });
 
-    if (res.ok) router.push("/sign-in");
-    else {
+    if (res.ok) {
+      router.push("/sign-in");
+    } else {
       const result = await res.json();
       setError(result.error || "Đăng ký thất bại");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-[400px]">
-      <Input name="name" required placeholder="Fullname" />
-      <Input name="email" required placeholder="Email" />
-      <Input name="phoneNumber" required placeholder="phoneNumber" />
-      <Input name="password" required placeholder="Password" />
-      <Button type="submit">Đăng ký</Button>
-      {error && <p>{error}</p>}
-    </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white p-8 shadow-lg rounded-xl space-y-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-gray-800">
+            Tạo tài khoản
+          </h1>
+          <p className="text-sm text-gray-500">
+            Điền thông tin bên dưới để bắt đầu
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input name="name" required placeholder="Họ và tên" />
+          <Input name="email" required type="email" placeholder="Email" />
+          <Input name="phoneNumber" required placeholder="Số điện thoại" />
+          <Input
+            name="password"
+            required
+            type="password"
+            placeholder="Mật khẩu"
+          />
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
+          <Button type="submit" className="w-full">
+            Đăng ký
+          </Button>
+          <p className="text-sm text-center text-gray-500">
+            Đã có tài khoản?{" "}
+            <a href="/sign-in" className="text-blue-500 hover:underline">
+              Đăng nhập
+            </a>
+          </p>
+        </form>
+      </div>
+    </div>
   );
 }

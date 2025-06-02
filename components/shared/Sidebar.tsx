@@ -69,25 +69,25 @@ export const Sidebar = () => {
         <div className="flex flex-col gap-1">
           <NavigationItem
             icon={<LayoutDashboard />}
-            title="Dashboard"
+            title="Trang chủ"
             href="/dashboard"
             active={pathname.startsWith("/dashboard")}
             collapsed={collapsed}
           />
           <NavigationItem
             icon={<Wallet />}
-            title="Finance"
+            title="Tài chính"
             href="/finance"
             active={pathname.startsWith("/finance")}
             collapsed={collapsed}
           />
           <NavigationItem
             icon={<ChartBar />}
-            title="Chart"
+            title="Biểu đồ"
             href="/chart"
             active={pathname.startsWith("/chart")}
             collapsed={collapsed}
-            badge={3}
+            //badge={3}
           />
         </div>
       </div>
@@ -96,7 +96,7 @@ export const Sidebar = () => {
       <div className="space-y-6">
         <NavigationItem
           icon={<Settings />}
-          title="Settings"
+          title="Cài đặt"
           href="/settings"
           active={pathname.startsWith("/settings")}
           collapsed={collapsed}
@@ -110,7 +110,7 @@ export const Sidebar = () => {
             className="text-white w-full flex items-center gap-2 px-2 py-4 h-10 cursor-pointer hover:bg-white/10 rounded-md transition"
           >
             <LogOut size={16} />
-            <span className="text-sm font-medium">Logout</span>
+            <span className="text-sm font-medium">Đăng xuất</span>
           </Button>
         )}
       </div>
