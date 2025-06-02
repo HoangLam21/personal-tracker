@@ -82,7 +82,7 @@ const ChangeLoginInfoForm = () => {
           !isValid ? "opacity-50 cursor-not-allowed" : " cursor-pointer"
         }`}
       >
-        Update Login Info
+        Cập nhật thông tin đăng nhập
       </button>
     </form>
   );

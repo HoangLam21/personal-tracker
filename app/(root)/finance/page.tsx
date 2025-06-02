@@ -13,7 +13,11 @@ export default async function CategoryPage() {
 
   return (
     <main className="m-4 flex-1 flex flex-col gap-2 border border-gray-200 p-4 rounded-2xl">
-      <Header title="Your categories" description="Danh mục thu/chi của bạn" />
+      <Header
+        title="Tài chính của bạn"
+        description="Tổng quan các khoản thu/chi và danh mục liên quan"
+      />
+
       <TransactionTableClient userId={userId} />
     </main>
   );

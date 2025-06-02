@@ -18,21 +18,24 @@ export default async function Page() {
 
   return (
     <main className="m-4 flex-1 flex flex-col gap-2 border border-gray-200 p-4 rounded-2xl">
-      <Header title="Setting" description="Let's update your account" />
+      <Header
+        title="Cài đặt"
+        description="Thay đổi thông tin cá nhân và bảo mật tài khoản"
+      />
 
-      <SettingSection title="Change Password">
+      <SettingSection title="Bảo mật">
         <ChangePasswordForm />
       </SettingSection>
 
       <hr className="my-4 border-gray-300 w-full" />
 
-      <SettingSection title="Change Login Information">
+      <SettingSection title="Thông tin đăng nhập">
         <ChangeLoginInfoForm />
       </SettingSection>
 
       <hr className="my-4 border-gray-300 w-full" />
 
-      <SettingSection title="Change Profile">
+      <SettingSection title="Thông tin tài khoản">
         <ChangeProfileForm />
       </SettingSection>
     </main>

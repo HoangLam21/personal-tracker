@@ -101,7 +101,7 @@ const ChangePasswordForm = () => {
           !isValid ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
-        Change Password
+        Cập nhật mật khẩu mới
       </button>
     </form>
   );

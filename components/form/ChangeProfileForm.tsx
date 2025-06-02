@@ -116,7 +116,7 @@ export default function ChangeProfileForm() {
           !isValid ? "opacity-50 cursor-not-allowed" : " cursor-pointer"
         }`}
       >
-        Update Profile
+        Cập nhật hồ sơ
       </button>
     </form>
   );

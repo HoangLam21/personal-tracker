@@ -2,9 +2,9 @@
 
 import { Table } from "@/components/ui/table/Table";
 import {
-    deleteTransaction,
+  deleteTransaction,
   getAllTransactions,
-  searchTransactionByNote,
+  searchTransactionByNote
 } from "@/lib/actions/transaction.action";
 import { Search, Plus, ArrowRight } from "lucide-react";
 import { Input } from "../ui/input/Input";
@@ -65,8 +65,8 @@ export default function TransactionTableClient({ userId }: Props) {
         t.amount.toLocaleString("vi-VN"), // Hiển thị có dấu chấm phân cách
         t.note || "Không có ghi chú",
         new Date(t.date).toLocaleDateString("vi-VN"),
-        t.type === "income" ? "Thu nhập" : "Chi tiêu",
-      ],
+        t.type === "income" ? "Thu nhập" : "Chi tiêu"
+      ]
     }));
   };
 
@@ -94,7 +94,7 @@ export default function TransactionTableClient({ userId }: Props) {
           <Link href="/finance/category">
             <Button variant="outline">
               <ArrowRight className="mr-1 h-4 w-4" />
-              All categories
+              Danh mục giao dịch
             </Button>
           </Link>
         </div>
@@ -105,7 +105,7 @@ export default function TransactionTableClient({ userId }: Props) {
           headers={headers}
           fetchData={fetchData}
           onEdit={(id) => router.push(`/finance/edit/${id}`)}
-          onDelete={async (id)=> await deleteTransaction(id)}
+          onDelete={async (id) => await deleteTransaction(id)}
         />
       </div>
     </div>

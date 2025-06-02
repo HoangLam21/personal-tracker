@@ -19,7 +19,6 @@ export default function LoginPage() {
     const form = new FormData(e.currentTarget);
     const identifier = form.get("email")?.toString().trim() || "";
 
-    // ✅ Kiểm tra định dạng hợp lệ
     if (!isEmail(identifier) && !isPhone(identifier)) {
       alert("Please enter a valid email or phone number.");
       return;
@@ -40,23 +39,59 @@ export default function LoginPage() {
   };
 
   return (
-    <form onSubmit={handleLogin} className="flex flex-col gap-3 max-w-[400px]">
-      <Input
-        name="email"
-        type="text"
-        required
-        placeholder="Email or phone number"
-        value={emailOrPhone}
-        onChange={(e) => setEmailOrPhone(e.target.value)}
-      />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white p-8 shadow-lg rounded-xl space-y-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-gray-800">Đăng nhập</h1>
+          <p className="text-sm text-gray-500">
+            Vui lòng nhập thông tin để tiếp tục
+          </p>
+        </div>
 
-      <Input name="password" type="password" required placeholder="Password" />
-      <Button type="submit">Đăng nhập</Button>
-      <Button variant="outline" onClick={() => signIn("google")}>
-        Đăng nhập với Google
-      </Button>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <Input
+            name="email"
+            type="text"
+            required
+            placeholder="Email hoặc số điện thoại"
+            value={emailOrPhone}
+            onChange={(e) => setEmailOrPhone(e.target.value)}
+          />
+          <Input
+            name="password"
+            type="password"
+            required
+            placeholder="Mật khẩu"
+          />
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </form>
+          <Button type="submit" className="w-full">
+            Đăng nhập
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => signIn("google")}
+          >
+            Đăng nhập bằng Google
+          </Button>
+        </form>
+
+        <div className="text-center pt-2">
+          <p className="text-sm text-gray-500">
+            Chưa có tài khoản?{" "}
+            <button
+              type="button"
+              onClick={() => router.push("/sign-up")}
+              className="text-blue-500 hover:underline"
+            >
+              Đăng ký ngay
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

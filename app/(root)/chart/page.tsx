@@ -14,8 +14,8 @@ export default async function Page() {
   return (
     <main className="m-4 flex-1 flex flex-col gap-2 border border-gray-200 p-4 rounded-2xl">
       <Header
-        title="Finance Chart"
-        description="Keep track your financial plan"
+        title="Biểu đồ tài chính"
+        description="Hãy theo dõi kế hoạch tài chính của bạn!"
       />
       <TransactionChartForm userId={userId} />
     </main>
