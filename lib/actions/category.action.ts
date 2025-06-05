@@ -47,6 +47,7 @@ export async function getAllCategories(skip = 0, limit = 10, userId: string) {
   }));
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createCategory(_prevState: any, formData: FormData) {
   await connectToDatabase();
 
@@ -71,6 +72,7 @@ export async function createCategory(_prevState: any, formData: FormData) {
       iconUrl = uploadedUrl;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const newCategory = await Category.create({
       userId: new Types.ObjectId(userId),
       name,
@@ -87,6 +89,7 @@ export async function createCategory(_prevState: any, formData: FormData) {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateCategory(_prevState: any, formData: FormData) {
   await connectToDatabase();
 
@@ -99,6 +102,7 @@ export async function updateCategory(_prevState: any, formData: FormData) {
 
     if (!_id) return { success: false, message: "Thiếu ID danh mục." };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const updated = await Category.findByIdAndUpdate(
       _id,
       {

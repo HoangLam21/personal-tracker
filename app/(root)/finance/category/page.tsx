@@ -1,9 +1,5 @@
 "use server";
 import Header from "@/components/shared/Header";
-import { Button } from "@/components/ui/button/Button";
-import { Input } from "@/components/ui/input/Input";
-import { Plus, Search } from "lucide-react";
-import Link from "next/link";
 import { auth } from "@/auth";
 import CategoryTableClient from "@/components/table/CategoryTableClient";
 

@@ -27,6 +27,7 @@ export async function getTransactionById(id: string, userId: string) {
 
   if (!transaction) throw new Error("Không tìm thấy giao dịch.");
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const category = transaction.categoryId as any;
 
   return {
@@ -58,6 +59,7 @@ export async function getAllTransactions(skip = 0, limit = 10, userId: string) {
     .populate("categoryId");
 
   return transactions.map((t) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const category = t.categoryId as any; // do populate trả về object
 
     return {
@@ -80,6 +82,7 @@ export async function getAllTransactions(skip = 0, limit = 10, userId: string) {
 }
 
 // Tạo giao dịch mới
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createTransaction(_prevState: any, formData: FormData) {
   await connectToDatabase();
 
@@ -95,6 +98,7 @@ export async function createTransaction(_prevState: any, formData: FormData) {
       return { success: false, message: "Thiếu thông tin bắt buộc." };
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const transaction = await Transaction.create({
       userId: new Types.ObjectId(userId),
       categoryId: new Types.ObjectId(categoryId),
@@ -113,6 +117,7 @@ export async function createTransaction(_prevState: any, formData: FormData) {
 }
 
 // Cập nhật giao dịch
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateTransaction(_prevState: any, formData: FormData) {
   await connectToDatabase();
 
@@ -127,6 +132,7 @@ export async function updateTransaction(_prevState: any, formData: FormData) {
     if (!_id || isNaN(amount))
       return { success: false, message: "Dữ liệu không hợp lệ." };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const updated = await Transaction.findByIdAndUpdate(
       _id,
       {
@@ -176,6 +182,7 @@ export async function searchTransactionByNote(q: string, userId: string) {
   );
 
   return filtered.map((t) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const category = t.categoryId as any;
     return {
       _id: t._id.toString(),
@@ -258,6 +265,7 @@ export async function getChartData(
       startDate = new Date(now.getFullYear(), 0, 1);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const matchCondition: any = {
     userId: new mongoose.Types.ObjectId(userId),
     date: { $gte: startDate, $lte: now }
@@ -671,6 +679,7 @@ export async function getAllUserSpendingGroupedByDate(userId: string) {
   ]);
 
   // Group by date
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const grouped: Record<string, any[]> = {};
 
   for (const tx of raw) {
