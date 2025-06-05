@@ -1,12 +1,14 @@
-import { auth } from "@/auth";
+import { auth } from "@/auth"; 
 import EditCategoryForm from "@/components/form/EditCategoryForm";
 import { redirect } from "next/navigation";
 
-export default async function EditCategoryPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+interface EditCategoryPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function EditCategoryPage({ params }: EditCategoryPageProps) {
   const session = await auth();
   const userId = session?.user?.id;
 
