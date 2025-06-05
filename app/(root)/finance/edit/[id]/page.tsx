@@ -2,20 +2,22 @@ import { auth } from "@/auth";
 import EditTransactionForm from "@/components/form/EditTransactionForm";
 import { redirect } from "next/navigation";
 
-export default async function EditCategoryPage({
+export default async function EditTransactionPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
   const userId = session?.user?.id;
 
   if (!userId) return redirect("/login");
 
+  // Resolve the params Promise to access the id
+  const { id } = await params;
+
   return (
     <main className="m-4 p-4 max-w-xl mx-auto">
-      {/* ✅ ép kiểu id về string */}
-      <EditTransactionForm id={`${params.id}`} userId={userId} />
+      <EditTransactionForm id={id} userId={userId} />
     </main>
   );
 }
