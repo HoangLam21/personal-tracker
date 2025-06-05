@@ -25,6 +25,7 @@ export default function CategoryTableClient({ userId }: { userId: string }) {
 
     if (searchTerm.trim() !== "") {
       const result = await searchCategoryByName(searchTerm.trim(), userId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return result.map((cat: any) => ({
         id: cat._id.toString(),
         cells: [
@@ -37,6 +38,7 @@ export default function CategoryTableClient({ userId }: { userId: string }) {
     }
 
     const result = await getAllCategories(skip, limit, userId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return result.map((cat: any) => ({
       id: cat._id.toString(),
       cells: [

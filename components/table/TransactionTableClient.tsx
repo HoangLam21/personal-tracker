@@ -24,6 +24,7 @@ export default function TransactionTableClient({ userId }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [triggerSearch, setTriggerSearch] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formatCategory = (category: any) => {
     if (!category) return "N/A";
     return (
@@ -57,6 +58,7 @@ export default function TransactionTableClient({ userId }: Props) {
         ? await searchTransactionByNote(searchTerm.trim(), userId)
         : await getAllTransactions(skip, limit, userId);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return results.map((t: any) => ({
       id: t._id,
       rowType: t.type, // 👈 dùng để xác định thu nhập / chi tiêu trong bảng
