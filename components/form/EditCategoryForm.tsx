@@ -43,9 +43,9 @@ export default function EditCategoryForm({
 
   useEffect(() => {
     if (formState.success) {
-      router.push(formState.redirect);
+      router.push(formState.redirect!);
     }
-  }, [formState]);
+  });
 
   if (!category) {
     return <p className="text-gray-500 text-sm">Đang tải dữ liệu...</p>;

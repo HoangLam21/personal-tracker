@@ -50,9 +50,9 @@ export default function EditTransactionForm({
 
   useEffect(() => {
     if (formState.success) {
-      router.push(formState.redirect);
+      router.push(formState.redirect!);
     }
-  }, [formState]);
+  });
 
   if (!transaction) {
     return <p className="text-gray-500 text-sm">Đang tải dữ liệu...</p>;

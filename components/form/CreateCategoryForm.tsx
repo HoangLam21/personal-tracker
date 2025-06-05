@@ -22,9 +22,9 @@ export default function CreateCategoryForm({ userId }: { userId: string }) {
   const router = useRouter();
   useEffect(() => {
     if (formState.success) {
-      router.push(formState.redirect);
+      router.push(formState.redirect!);
     }
-  }, [formState]);
+  });
   return (
     <form
       action={formAction}
