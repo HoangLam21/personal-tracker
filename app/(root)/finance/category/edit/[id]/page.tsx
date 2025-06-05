@@ -5,16 +5,19 @@ import { redirect } from "next/navigation";
 export default async function EditCategoryPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
   const userId = session?.user?.id;
 
   if (!userId) return redirect("/login");
 
+  // Resolve the params Promise to access the id
+  const { id } = await params;
+
   return (
     <main className="m-4 p-4 max-w-xl mx-auto">
-      <EditCategoryForm id={params.id} userId={userId} />
+      <EditCategoryForm id={id} userId={userId} />
     </main>
   );
 }
