@@ -67,9 +67,9 @@ export default function CreateTransactionForm({ userId }: Props) {
 
   useEffect(() => {
     if (formState.success) {
-      router.push(formState.redirect);
+      router.push(formState.redirect!);
     }
-  }, [formState]);
+  });
 
   const loadMoreCategories = async () => {
     const result = await getAllCategories(page * limit, limit, userId);
