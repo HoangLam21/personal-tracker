@@ -12,6 +12,29 @@ import {
 import { getAllCategories } from "@/lib/actions/category.action";
 import { useRouter } from "next/navigation";
 
+// Define interfaces for Transaction and Category
+interface Category {
+  _id: string;
+  name: string;
+  type?: string; // Made optional to match the API response
+  color: string;
+  icon?: string;
+  createdAt?: string; // Made optional to match the API response
+  updatedAt?: string; // Made optional to match the API response
+}
+
+interface Transaction {
+  _id: string;
+  userId: string;
+  category: Category;
+  amount: number;
+  note?: string;
+  date: string;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const typeOptions = [
   { label: "Thu nhập", value: "income" },
   { label: "Chi tiêu", value: "expense" },
@@ -26,12 +49,9 @@ export default function EditTransactionForm({
   id: string;
   userId: string;
 }) {
-  const [transaction, setTransaction] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [formState, formAction] = useActionState(
-    updateTransaction,
-    initialState
-  );
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [formState, formAction] = useActionState(updateTransaction, initialState);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,7 +72,7 @@ export default function EditTransactionForm({
     if (formState.success) {
       router.push(formState.redirect!);
     }
-  });
+  }, [formState, router]);
 
   if (!transaction) {
     return <p className="text-gray-500 text-sm">Đang tải dữ liệu...</p>;
@@ -119,7 +139,6 @@ export default function EditTransactionForm({
           options={typeOptions}
           value={transaction.type}
           onChange={() => {}}
-          disabled
         />
         <input type="hidden" name="type" value={transaction.type} />
       </div>

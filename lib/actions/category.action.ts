@@ -30,7 +30,7 @@ export async function getCategoryById(id: string, userId: string) {
 
 export async function getAllCategories(skip = 0, limit = 10, userId: string) {
   await connectToDatabase();
-  const categories = await Category.find({ userId })
+  const categories = await Category.find({ userId:userId })
     .sort({ createdAt: -1 })
     .skip(Number(skip))
     .limit(Number(limit));

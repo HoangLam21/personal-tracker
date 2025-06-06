@@ -9,6 +9,17 @@ import { ImageInput } from "@/components/ui/input/ImageInput";
 import { getCategoryById, updateCategory } from "@/lib/actions/category.action";
 import { useRouter } from "next/navigation";
 
+// Define the Category interface
+interface Category {
+  _id: string;
+  name: string;
+  type: string;
+  color: string;
+  icon?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const typeOptions = [
   { label: "Thu nhập", value: "income" },
   { label: "Chi tiêu", value: "expense" },
@@ -23,7 +34,8 @@ export default function EditCategoryForm({
   id: string;
   userId: string;
 }) {
-  const [category, setCategory] = useState(null);
+  // Update useState to use Category | null
+  const [category, setCategory] = useState<Category | null>(null);
   const [type, setType] = useState("income");
   const [formState, formAction] = useActionState(updateCategory, initialState);
   const router = useRouter();
@@ -45,7 +57,7 @@ export default function EditCategoryForm({
     if (formState.success) {
       router.push(formState.redirect!);
     }
-  });
+  }, [formState, router]);
 
   if (!category) {
     return <p className="text-gray-500 text-sm">Đang tải dữ liệu...</p>;
