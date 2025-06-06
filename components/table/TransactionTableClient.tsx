@@ -102,7 +102,7 @@ export default function TransactionTableClient({ userId }: Props) {
         </div>
       </div>
 
-      <div key={triggerSearch}>
+      <div>
         <Table
           headers={headers}
           fetchData={fetchData}

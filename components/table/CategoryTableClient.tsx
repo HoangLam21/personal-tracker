@@ -74,7 +74,7 @@ export default function CategoryTableClient({ userId }: { userId: string }) {
         </div>
       </div>
 
-      <div key={triggerSearch}>
+      <div>
         <Table
           headers={headers}
           fetchData={fetchData}
