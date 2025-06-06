@@ -26,19 +26,18 @@ export const {
           password: string;
         };
 
-        const response = await fetch(
-          "https://" + process.env.VERCEL_URL + "/api/sign-in",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: email,
-              password: password,
-            }),
-          }
-        );
+        const signInURL = "https://" + process.env.VERCEL_URL + "/api/sign-in";
+        console.log("signInURL>>>>", signInURL);
+        const response = await fetch(signInURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        });
 
         const data = await response.json();
 
