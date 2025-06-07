@@ -26,7 +26,7 @@ export const {
           password: string;
         };
 
-        const signInURL = "https://" + process.env.VERCEL_URL + "/api/sign-in";
+        const signInURL = process.env.BASE_URL + "/api/sign-in";
         console.log("signInURL>>>>", signInURL);
         const response = await fetch(signInURL, {
           method: "POST",

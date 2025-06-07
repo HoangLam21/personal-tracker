@@ -6,7 +6,7 @@ import {
   LayoutDashboard,
   Menu,
   Settings,
-  LogOut
+  LogOut,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import SidebarUserInfo from "./SidebarUserInfo";
 import { signOut } from "next-auth/react";
 import { useUserContext } from "@/context/UserContext";
+import Image from "next/image";
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -52,8 +53,11 @@ export const Sidebar = () => {
           )}
         >
           {!collapsed && (
-            <div className="text-xl font-semibold tracking-wide">
-              🔄 Personal Tracker
+            <div className="flex flex-row gap-3 items-center justify-between">
+              <Image src="/Logo.jpg" alt="Logo" width={40} height={40} className="rounded-full"/>
+              <div className="text-xl font-semibold tracking-wide">
+                Personal Tracker
+              </div>
             </div>
           )}
           <Button
